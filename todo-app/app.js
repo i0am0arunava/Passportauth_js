@@ -9,6 +9,8 @@ const passport = require('passport');
 const connectEnsureLogin = require('connect-ensure-login')
 const session = require('express-session')
 const LocalStrategy = require('passport-local')
+const bcrypt =require('bcrypt');
+const salt =10;
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser("ssh! some secret string"));
@@ -81,12 +83,13 @@ app.get("/signup", async (request, response) => {
 });
 app.post("/users", async (request, response) => {
     console.log(request.body.firstName)
+    const hashpwd = await bcrypt.hash(request.body.password,salt);
     try {
         const user = await User.create({
             firstName: request.body.firstName,
             lastName: request.body.lastName,
             email: request.body.email,
-            password: request.body.password
+            password: hashpwd
         })
         request.login(user,(err)=>{
             if(err){
